@@ -40,6 +40,8 @@ PROVIDER_KEY_ENV_VARS: Dict[str, List[str]] = {
     "fireworks": ["FIREWORKS_API_KEY"],
     "cohere": ["COHERE_API_KEY"],
     "xai": ["XAI_API_KEY"],
+    "blackbox": ["BLACKBOX_API_KEY"],
+    "minimax": ["BLACKBOX_API_KEY"],
 }
 
 # Default base URLs per provider
@@ -56,6 +58,8 @@ PROVIDER_BASE_URLS: Dict[str, str] = {
     "fireworks": "https://api.fireworks.ai/inference/v1",
     "cohere": "https://api.cohere.ai/v1",
     "xai": "https://api.x.ai/v1",
+    "blackbox": "https://api.blackbox.ai/v1",
+    "minimax": "https://api.blackbox.ai/v1",
 }
 
 # Defaults config file

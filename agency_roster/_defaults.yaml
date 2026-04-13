@@ -5,7 +5,7 @@
 #
 # Priority: runtime override > step override > agent default > division default > global default
 
-global_default_model: "anthropic/claude-sonnet-4-20250514"
+global_default_model: "blackbox/minimax-2.5"
 
 # Division-level defaults (override global for all agents in a division)
 divisions:
@@ -38,6 +38,7 @@ divisions:
 
 # Provider API key environment variables (for reference)
 # Set these in ~/.hermes/.env or system environment:
+#   BLACKBOX_API_KEY=sk-...          (for Blackbox AI / Minimax 2.5)
 #   ANTHROPIC_API_KEY=sk-ant-...
 #   OPENAI_API_KEY=sk-...
 #   OPENROUTER_API_KEY=sk-or-...
