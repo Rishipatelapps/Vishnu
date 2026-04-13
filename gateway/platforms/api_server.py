@@ -1594,6 +1594,102 @@ class APIServerAdapter(BasePlatformAdapter):
                 self._run_streams_created.pop(run_id, None)
 
     # ------------------------------------------------------------------
+    # Orchestrator API handlers
+    # ------------------------------------------------------------------
+
+    async def _handle_orchestrator_submit(self, request: "web.Request") -> "web.Response":
+        """POST /api/orchestrator/jobs"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        body = await request.json()
+        from orchestrator.api import handle_submit_job
+        result = handle_submit_job(body)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_list_jobs(self, request: "web.Request") -> "web.Response":
+        """GET /api/orchestrator/jobs"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        state = request.query.get("state")
+        from orchestrator.api import handle_list_jobs
+        result = handle_list_jobs(state=state)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_get_job(self, request: "web.Request") -> "web.Response":
+        """GET /api/orchestrator/jobs/{job_id}"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        job_id = request.match_info["job_id"]
+        from orchestrator.api import handle_get_job
+        result = handle_get_job(job_id)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_cancel(self, request: "web.Request") -> "web.Response":
+        """DELETE /api/orchestrator/jobs/{job_id}"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        job_id = request.match_info["job_id"]
+        from orchestrator.api import handle_cancel_job
+        result = handle_cancel_job(job_id)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_roster(self, request: "web.Request") -> "web.Response":
+        """GET /api/orchestrator/roster"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        division = request.query.get("division")
+        from orchestrator.api import handle_list_roster
+        result = handle_list_roster(division=division)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_search(self, request: "web.Request") -> "web.Response":
+        """GET /api/orchestrator/roster/search"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        query = request.query.get("q", "")
+        top_k = int(request.query.get("top_k", "10"))
+        from orchestrator.api import handle_search_roster
+        result = handle_search_roster(query, top_k=top_k)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_agent(self, request: "web.Request") -> "web.Response":
+        """GET /api/orchestrator/roster/{name}"""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        agent_name = request.match_info["name"].replace("-", " ")
+        from orchestrator.api import handle_get_agent
+        result = handle_get_agent(agent_name)
+        return web.json_response(result["body"], status=result["status"])
+
+    async def _handle_orchestrator_sse(self, request: "web.Request") -> "web.StreamResponse":
+        """GET /api/orchestrator/status/stream — SSE event stream."""
+        auth_err = self._check_auth(request)
+        if auth_err:
+            return auth_err
+        job_id = request.query.get("job_id", "")
+        if not job_id:
+            return web.json_response({"error": "Missing job_id query param"}, status=400)
+
+        from orchestrator.api import handle_sse_stream
+        response = web.StreamResponse()
+        response.content_type = "text/event-stream"
+        response.headers["Cache-Control"] = "no-cache"
+        response.headers["Connection"] = "keep-alive"
+        await response.prepare(request)
+
+        for chunk in handle_sse_stream(job_id):
+            await response.write(chunk.encode("utf-8"))
+
+        return response
+
+    # ------------------------------------------------------------------
     # BasePlatformAdapter interface
     # ------------------------------------------------------------------
 
@@ -1626,6 +1722,15 @@ class APIServerAdapter(BasePlatformAdapter):
             # Structured event streaming
             self._app.router.add_post("/v1/runs", self._handle_runs)
             self._app.router.add_get("/v1/runs/{run_id}/events", self._handle_run_events)
+            # Orchestrator API routes
+            self._app.router.add_post("/api/orchestrator/jobs", self._handle_orchestrator_submit)
+            self._app.router.add_get("/api/orchestrator/jobs", self._handle_orchestrator_list_jobs)
+            self._app.router.add_get("/api/orchestrator/jobs/{job_id}", self._handle_orchestrator_get_job)
+            self._app.router.add_delete("/api/orchestrator/jobs/{job_id}", self._handle_orchestrator_cancel)
+            self._app.router.add_get("/api/orchestrator/roster", self._handle_orchestrator_roster)
+            self._app.router.add_get("/api/orchestrator/roster/search", self._handle_orchestrator_search)
+            self._app.router.add_get("/api/orchestrator/roster/{name}", self._handle_orchestrator_agent)
+            self._app.router.add_get("/api/orchestrator/status/stream", self._handle_orchestrator_sse)
             # Start background sweep to clean up orphaned (unconsumed) run streams
             sweep_task = asyncio.create_task(self._sweep_orphaned_runs())
             try:

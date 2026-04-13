@@ -1,0 +1,8 @@
+id,name,filePath,responseKeys,errorKeys,middleware
+"Route:/messages","/messages","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"
+"Route:/send","/send","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"
+"Route:/edit","/edit","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"
+"Route:/send-media","/send-media","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"
+"Route:/typing","/typing","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"
+"Route:/chat/:id","/chat/:id","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"
+"Route:/health","/health","scripts/whatsapp-bridge/bridge.js","['success','true','messageId','id','false','name','subject','isGroup','participants','status','connectionState','queueLength','length','uptime']","['error','message']","[]"

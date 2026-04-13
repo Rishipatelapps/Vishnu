@@ -1,0 +1,16 @@
+id,name,filePath,startLine,endLine,isExported,content,description
+"Interface:website/src/pages/skills/index.tsx:Skill","Skill","website/src/pages/skills/index.tsx",5,15,false,"import styles from ""./styles.module.css"";
+
+interface Skill {
+  name: string;
+  description: string;
+  category: string;
+  categoryLabel: string;
+  source: string;
+  tags: string[];
+  platforms: string[];
+  author: string;
+  version: string;
+}
+
+const allSkills: Skill[] = skills as Skill[];",""

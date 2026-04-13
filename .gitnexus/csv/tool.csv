@@ -1,0 +1,11 @@
+id,name,filePath,description
+"Tool:conversations_list","conversations_list","mcp_serve.py",""
+"Tool:conversation_get","conversation_get","mcp_serve.py",""
+"Tool:messages_read","messages_read","mcp_serve.py",""
+"Tool:attachments_fetch","attachments_fetch","mcp_serve.py",""
+"Tool:events_poll","events_poll","mcp_serve.py",""
+"Tool:events_wait","events_wait","mcp_serve.py",""
+"Tool:messages_send","messages_send","mcp_serve.py",""
+"Tool:channels_list","channels_list","mcp_serve.py",""
+"Tool:permissions_list_open","permissions_list_open","mcp_serve.py",""
+"Tool:permissions_respond","permissions_respond","mcp_serve.py",""

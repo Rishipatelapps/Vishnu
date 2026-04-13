@@ -1,0 +1,118 @@
+id,name,filePath,startLine,endLine,isExported,content,description,parameterCount,returnType
+"Method:landingpage/script.js:TerminalDemo.constructor#1","constructor","landingpage/script.js",314,318,false,"
+class TerminalDemo {
+  constructor(container) {
+    this.container = container;
+    this.running = false;
+    this.content = """";
+  }
+
+  async start() {","",1,""
+"Method:landingpage/script.js:TerminalDemo.start#0","start","landingpage/script.js",320,332,false,"  }
+
+  async start() {
+    if (this.running) return;
+    this.running = true;
+
+    while (this.running) {
+      for (const step of demoSequence) {
+        if (!this.running) return;
+        await this.execute(step);
+      }
+      this.clear();
+      await this.sleep(1000);
+    }
+  }
+
+  stop() {","",0,""
+"Method:landingpage/script.js:TerminalDemo.stop#0","stop","landingpage/script.js",334,336,false,"  }
+
+  stop() {
+    this.running = false;
+  }
+
+  async execute(step) {","",0,""
+"Method:landingpage/script.js:TerminalDemo.execute#1","execute","landingpage/script.js",338,364,false,"  }
+
+  async execute(step) {
+    switch (step.type) {
+      case ""prompt"":
+        this.append(`<span class=""t-prompt"">${step.text}</span>`);
+        break;
+      case ""type"":
+        for (const char of step.text) {
+          if (!this.running) return;
+          this.append(`<span class=""t-cmd"">${char}</span>`);
+          await this.sleep(step.delay || 30);
+        }
+        break;
+      case ""output"":
+        for (const line of step.lines) {
+          if (!this.running) return;
+          this.append(""\n"" + line);
+          await this.sleep(50);
+        }
+        break;
+      case ""pause"":
+        await this.sleep(step.ms);
+        break;
+      case ""clear"":
+        this.clear();
+        break;
+    }
+  }
+
+  append(html) {","",1,""
+"Method:landingpage/script.js:TerminalDemo.append#1","append","landingpage/script.js",366,369,false,"  }
+
+  append(html) {
+    this.content += html;
+    this.render();
+  }
+
+  render() {","",1,""
+"Method:landingpage/script.js:TerminalDemo.render#0","render","landingpage/script.js",371,374,false,"  }
+
+  render() {
+    this.container.innerHTML = this.content + CURSOR;
+    this.container.scrollTop = this.container.scrollHeight;
+  }
+
+  clear() {","",0,""
+"Method:landingpage/script.js:TerminalDemo.clear#0","clear","landingpage/script.js",376,379,false,"  }
+
+  clear() {
+    this.content = """";
+    this.container.innerHTML = """";
+  }
+
+  sleep(ms) {","",0,""
+"Method:landingpage/script.js:TerminalDemo.sleep#1","sleep","landingpage/script.js",381,383,false,"  }
+
+  sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+}
+","",1,""
+"Method:packaging/homebrew/hermes-agent.rb:HermesAgent.install#0","install","packaging/homebrew/hermes-agent.rb",21,38,true,"  #   brew update-python-resources --print-only hermes-agent
+
+  def install
+    venv = virtualenv_create(libexec, ""python3.14"")
+    venv.pip_install resources
+    venv.pip_install buildpath
+
+    pkgshare.install ""skills"", ""optional-skills""
+
+    %w[hermes hermes-agent hermes-acp].each do |exe|
+      next unless (libexec/""bin""/exe).exist?
+
+      (bin/exe).write_env_script(
+        libexec/""bin""/exe,
+        HERMES_BUNDLED_SKILLS: pkgshare/""skills"",
+        HERMES_OPTIONAL_SKILLS: pkgshare/""optional-skills"",
+        HERMES_MANAGED: ""homebrew""
+      )
+    end
+  end
+
+  test do","",0,""

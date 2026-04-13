@@ -2631,6 +2631,22 @@ def cmd_cron(args):
     cron_command(args)
 
 
+def cmd_orchestrate(args):
+    """Multi-agent orchestration."""
+    from hermes_cli.orchestrate import cmd_orchestrate as _handler
+    _handler(
+        goal=getattr(args, "goal", None),
+        roster=getattr(args, "roster", False),
+        division=getattr(args, "division", None),
+        search=getattr(args, "search", None),
+        status=getattr(args, "status_id", None),
+        workflow=getattr(args, "workflow", None),
+        schedule=getattr(args, "schedule", None),
+        model=getattr(args, "model", None),
+        agent=getattr(args, "agent", None),
+    )
+
+
 def cmd_webhook(args):
     """Webhook subscription management."""
     from hermes_cli.webhook import webhook_command
@@ -4684,6 +4700,56 @@ For more help on a command:
     cron_subparsers.add_parser("tick", help="Run due jobs once and exit")
 
     cron_parser.set_defaults(func=cmd_cron)
+
+    # =========================================================================
+    # orchestrate command
+    # =========================================================================
+    orchestrate_parser = subparsers.add_parser(
+        "orchestrate",
+        help="Multi-agent orchestration with the Agency Roster",
+        description=(
+            "Decompose complex goals and delegate to specialized worker agents "
+            "from the 144+ agent Agency Roster. Supports single-agent spawning, "
+            "DAG workflows, and recurring schedules."
+        ),
+    )
+    orchestrate_parser.add_argument(
+        "goal", nargs="?", default=None,
+        help="The high-level goal to orchestrate",
+    )
+    orchestrate_parser.add_argument(
+        "--roster", action="store_true",
+        help="List all agents in the roster",
+    )
+    orchestrate_parser.add_argument(
+        "--division", default=None,
+        help="Filter roster by division (engineering, design, marketing, etc.)",
+    )
+    orchestrate_parser.add_argument(
+        "--search", default=None,
+        help="Search the roster by keywords",
+    )
+    orchestrate_parser.add_argument(
+        "--status", dest="status_id", default=None,
+        help="Check the status of a job by ID",
+    )
+    orchestrate_parser.add_argument(
+        "--agent", default=None,
+        help="Spawn a single named agent to handle the goal",
+    )
+    orchestrate_parser.add_argument(
+        "--workflow", default=None,
+        help="Path to a YAML workflow DAG file",
+    )
+    orchestrate_parser.add_argument(
+        "--schedule", default=None,
+        help="Cron expression for recurring execution (e.g. '0 9 * * 1')",
+    )
+    orchestrate_parser.add_argument(
+        "--model", default=None,
+        help="Override the model for all agents (e.g. 'anthropic/claude-opus-4-20250514')",
+    )
+    orchestrate_parser.set_defaults(func=cmd_orchestrate)
 
     # =========================================================================
     # webhook command

@@ -1,0 +1,47 @@
+# Agency Roster — Default Model Configuration
+#
+# This file controls default LLM model assignments for agents.
+# Individual agents can override these in their .md frontmatter.
+#
+# Priority: runtime override > step override > agent default > division default > global default
+
+global_default_model: "anthropic/claude-sonnet-4-20250514"
+
+# Division-level defaults (override global for all agents in a division)
+divisions:
+  engineering:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  design:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  marketing:
+    default_model: "openai/gpt-4o"
+  sales:
+    default_model: "openai/gpt-4o"
+  paid_media:
+    default_model: "openai/gpt-4o"
+  product:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  project_management:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  testing:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  support:
+    default_model: "openai/gpt-4o"
+  spatial_computing:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  specialized:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  game_development:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+  academic:
+    default_model: "anthropic/claude-sonnet-4-20250514"
+
+# Provider API key environment variables (for reference)
+# Set these in ~/.hermes/.env or system environment:
+#   ANTHROPIC_API_KEY=sk-ant-...
+#   OPENAI_API_KEY=sk-...
+#   OPENROUTER_API_KEY=sk-or-...
+#   GEMINI_API_KEY=...
+#   MISTRAL_API_KEY=...
+#   DEEPSEEK_API_KEY=...
+#   GROQ_API_KEY=gsk_...

@@ -31,7 +31,7 @@ T = TypeVar("T")
 
 DEFAULT_DB_PATH = get_hermes_home() / "state.db"
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -88,6 +88,40 @@ CREATE INDEX IF NOT EXISTS idx_sessions_source ON sessions(source);
 CREATE INDEX IF NOT EXISTS idx_sessions_parent ON sessions(parent_session_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS orchestrator_jobs (
+    id TEXT PRIMARY KEY,
+    goal TEXT NOT NULL,
+    state TEXT NOT NULL DEFAULT 'submitted',
+    workflow_json TEXT,
+    model_override TEXT,
+    context_json TEXT,
+    schedule TEXT,
+    created_at REAL NOT NULL,
+    updated_at REAL,
+    completed_at REAL,
+    final_output TEXT,
+    error TEXT
+);
+
+CREATE TABLE IF NOT EXISTS orchestrator_steps (
+    id TEXT PRIMARY KEY,
+    job_id TEXT NOT NULL REFERENCES orchestrator_jobs(id),
+    agent_name TEXT NOT NULL,
+    task TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    output TEXT,
+    error TEXT,
+    model_used TEXT,
+    tokens_used INTEGER DEFAULT 0,
+    duration_seconds REAL DEFAULT 0.0,
+    started_at REAL,
+    completed_at REAL
+);
+
+CREATE INDEX IF NOT EXISTS idx_orchestrator_jobs_state ON orchestrator_jobs(state);
+CREATE INDEX IF NOT EXISTS idx_orchestrator_jobs_created ON orchestrator_jobs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orchestrator_steps_job ON orchestrator_steps(job_id);
 """
 
 FTS_SQL = """
@@ -329,6 +363,42 @@ class SessionDB:
                     except sqlite3.OperationalError:
                         pass  # Column already exists
                 cursor.execute("UPDATE schema_version SET version = 6")
+            if current_version < 7:
+                # v7: orchestrator job and step tracking tables
+                cursor.executescript("""
+                    CREATE TABLE IF NOT EXISTS orchestrator_jobs (
+                        id TEXT PRIMARY KEY,
+                        goal TEXT NOT NULL,
+                        state TEXT NOT NULL DEFAULT 'submitted',
+                        workflow_json TEXT,
+                        model_override TEXT,
+                        context_json TEXT,
+                        schedule TEXT,
+                        created_at REAL NOT NULL,
+                        updated_at REAL,
+                        completed_at REAL,
+                        final_output TEXT,
+                        error TEXT
+                    );
+                    CREATE TABLE IF NOT EXISTS orchestrator_steps (
+                        id TEXT PRIMARY KEY,
+                        job_id TEXT NOT NULL REFERENCES orchestrator_jobs(id),
+                        agent_name TEXT NOT NULL,
+                        task TEXT NOT NULL,
+                        status TEXT NOT NULL DEFAULT 'pending',
+                        output TEXT,
+                        error TEXT,
+                        model_used TEXT,
+                        tokens_used INTEGER DEFAULT 0,
+                        duration_seconds REAL DEFAULT 0.0,
+                        started_at REAL,
+                        completed_at REAL
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_orchestrator_jobs_state ON orchestrator_jobs(state);
+                    CREATE INDEX IF NOT EXISTS idx_orchestrator_jobs_created ON orchestrator_jobs(created_at DESC);
+                    CREATE INDEX IF NOT EXISTS idx_orchestrator_steps_job ON orchestrator_steps(job_id);
+                """)
+                cursor.execute("UPDATE schema_version SET version = 7")
 
         # Unique title index — always ensure it exists (safe to run after migrations
         # since the title column is guaranteed to exist at this point)
